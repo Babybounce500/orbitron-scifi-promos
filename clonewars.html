@@ -1,0 +1,118 @@
+<title>Die Akademie — Vorschau</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#0a0c0f; --ink:#e9e3d6; --ink-dim:#a9a49a; --gold:#c9a24b;
+    --display:'Cinzel',Georgia,serif; --mono:'JetBrains Mono','Courier New',monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{ margin:0; background:var(--void); color:var(--ink); overflow:hidden; }
+  ::selection{ background:rgba(201,162,75,.5); color:#0a0c0f; }
+  .slide{ position:fixed; inset:0; opacity:0; visibility:hidden; transition:opacity .25s linear; }
+  .slide.active{ opacity:1; visibility:visible; }
+  .slide img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .slide::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(10,12,15,.05) 0%, rgba(10,12,15,.1) 55%, rgba(10,12,15,.88) 100%);
+  }
+  .slide .cap{ position:absolute; left:0; right:0; bottom:9vh; z-index:2; text-align:center; padding:0 1.5rem; }
+  .slide .num{ display:inline-block; font-family:var(--mono); font-size:.72rem; letter-spacing:.2em; color:var(--gold); margin-bottom:.5rem; }
+  .slide h2{ font-family:var(--display); font-weight:600; font-size:clamp(1.5rem,4.4vw,2.6rem); margin:0; text-wrap:balance; text-shadow:0 2px 20px rgba(0,0,0,.7); }
+  .brand{
+    position:fixed; top:1.1rem; left:1.3rem; z-index:5;
+    font-family:var(--mono); font-size:.68rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink-dim); background:rgba(10,12,15,.5); border:1px solid rgba(233,227,214,.16);
+    padding:.4rem .75rem; border-radius:3px;
+  }
+  .brand b{ color:var(--gold); font-weight:500; }
+  .dots{ position:fixed; bottom:1.4rem; left:0; right:0; z-index:5; display:flex; justify-content:center; gap:6px; }
+  .dots span{ width:5px; height:5px; border-radius:50%; background:rgba(233,227,214,.25); transition:background .2s,transform .2s; }
+  .dots span.on{ background:var(--gold); transform:scale(1.5); }
+  .zone{ position:fixed; top:0; bottom:0; width:34%; z-index:4; cursor:pointer; background:transparent; border:0; }
+  .zone.prev{ left:0; }
+  .zone.next{ right:0; }
+  .counter{ position:fixed; top:1.1rem; right:1.3rem; z-index:5; font-family:var(--mono); font-size:.68rem; color:var(--ink-dim); font-variant-numeric:tabular-nums; }
+</style>
+
+<span class="brand"><b>Die Akademie · Clone Wars</b></span>
+<span class="counter" id="counter">1 / 1</span>
+
+<div id="slides"></div>
+
+<button class="zone prev" id="prevZone" aria-label="Zurück"></button>
+<button class="zone next" id="nextZone" aria-label="Weiter"></button>
+<div class="dots" id="dots"></div>
+
+<script>
+(function(){
+  var BASE = 'https://raw.githubusercontent.com/Babybounce500/orbitron-novels-images/main/';
+  var chapters = [
+    ['Erwachen ohne Erinnerung','clonewars/ch1_tile1_-_pod_awakening.jpg'],
+    ['Die erste Mission','clonewars/ch2_tile1_-_speed_mission.jpg'],
+    ['Die Enthüllung','clonewars/ch3_tile1_-_sanctuary.jpg'],
+    ['Verrat im Sanctuary','clonewars/ch4_tile1_-_echo_infected.jpg'],
+    ['Die Blackwall Expedition','clonewars/ch5_tile1_-_blackwall_gateway.jpg'],
+    ['Der Architekt spricht','clonewars/ch6_tile1_-_vortex_strikes.jpg'],
+    ['Die Wasserscheide','clonewars/ch7_tile1_-_sacrifice.jpg'],
+    ['Finale - Der Aufstieg zur Citadel','clonewars/ch8_tile1_-_citadel_assault.jpg']
+  ];
+
+  var container = document.getElementById('slides');
+  var dotsWrap = document.getElementById('dots');
+  var frag = document.createDocumentFragment();
+  var dotFrag = document.createDocumentFragment();
+
+  chapters.forEach(function(ch, i){
+    var title = ch[0], img = ch[1];
+    var el = document.createElement('div');
+    el.className = 'slide' + (i === 0 ? ' active' : '');
+    el.innerHTML =
+      '<img src="' + BASE + img + '" alt="Kapitel ' + (i+1) + ': ' + title + '" loading="' + (i===0?'eager':'lazy') + '">' +
+      '<div class="cap"><span class="num">Kapitel ' + (i+1) + '</span><h2>' + title + '</h2></div>';
+    frag.appendChild(el);
+    var dot = document.createElement('span');
+    if (i === 0) dot.className = 'on';
+    dotFrag.appendChild(dot);
+  });
+  container.appendChild(frag);
+  dotsWrap.appendChild(dotFrag);
+
+  var slides = container.querySelectorAll('.slide');
+  var dots = dotsWrap.querySelectorAll('span');
+  var counter = document.getElementById('counter');
+  var idx = 0;
+
+  function render(){
+    slides.forEach(function(s, i){ s.classList.toggle('active', i === idx); });
+    dots.forEach(function(d, i){ d.classList.toggle('on', i === idx); });
+    counter.textContent = (idx+1) + ' / ' + slides.length;
+  }
+  function go(delta){
+    var next = idx + delta;
+    if (next < 0 || next > slides.length - 1) return;
+    idx = next;
+    render();
+  }
+
+  document.getElementById('prevZone').addEventListener('click', function(){ go(-1); });
+  document.getElementById('nextZone').addEventListener('click', function(){ go(1); });
+  document.addEventListener('keydown', function(e){
+    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    if (e.key === 'ArrowRight' || e.key === ' '){ go(1); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft'){ go(-1); e.preventDefault(); }
+  });
+  var touchX = null;
+  document.addEventListener('touchstart', function(e){ touchX = e.touches[0].clientX; }, { passive:true });
+  document.addEventListener('touchend', function(e){
+    if (touchX === null) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 44) go(dx < 0 ? 1 : -1);
+    touchX = null;
+  }, { passive:true });
+
+  render();
+})();
+</script>
