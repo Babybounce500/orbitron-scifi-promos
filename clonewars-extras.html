@@ -1,0 +1,257 @@
+<title>Die Akademie — Bonus-Galerie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#0a0c0f; --ink:#e9e3d6; --ink-dim:#a9a49a; --gold:#c9a24b;
+    --display:'Cinzel',Georgia,serif; --mono:'JetBrains Mono','Courier New',monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{ margin:0; background:var(--void); color:var(--ink); overflow:hidden; }
+  ::selection{ background:rgba(201,162,75,.5); color:#0a0c0f; }
+  .slide{ position:fixed; inset:0; opacity:0; visibility:hidden; transition:opacity .25s linear; }
+  .slide.active{ opacity:1; visibility:visible; }
+  .slide img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .slide::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(10,12,15,.05) 0%, rgba(10,12,15,.1) 55%, rgba(10,12,15,.88) 100%);
+  }
+  .slide .cap{ position:absolute; left:0; right:0; bottom:9vh; z-index:2; text-align:center; padding:0 1.5rem; }
+  .slide .num{ display:inline-block; font-family:var(--mono); font-size:.7rem; letter-spacing:.16em; color:var(--gold); margin-bottom:.5rem; }
+  .slide h2{ font-family:var(--display); font-weight:600; font-size:clamp(1.3rem,3.8vw,2.2rem); margin:0; text-wrap:balance; text-shadow:0 2px 20px rgba(0,0,0,.7); }
+  .brand{
+    position:fixed; top:1.1rem; left:1.3rem; z-index:5;
+    font-family:var(--mono); font-size:.68rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink-dim); background:rgba(10,12,15,.5); border:1px solid rgba(233,227,214,.16);
+    padding:.4rem .75rem; border-radius:3px;
+  }
+  .brand b{ color:var(--gold); font-weight:500; }
+  .dots{ position:fixed; bottom:1.4rem; left:0; right:0; z-index:5; display:flex; justify-content:center; gap:4px; padding:0 6vw; flex-wrap:nowrap; overflow:hidden; }
+  .dots span{ width:4px; height:4px; min-width:4px; border-radius:50%; background:rgba(233,227,214,.25); transition:background .2s,transform .2s; }
+  .dots span.on{ background:var(--gold); transform:scale(1.6); }
+  .zone{ position:fixed; top:0; bottom:0; width:34%; z-index:4; cursor:pointer; background:transparent; border:0; }
+  .zone.prev{ left:0; }
+  .zone.next{ right:0; }
+  .counter{ position:fixed; top:1.1rem; right:1.3rem; z-index:5; font-family:var(--mono); font-size:.68rem; color:var(--ink-dim); font-variant-numeric:tabular-nums; }
+</style>
+
+<span class="brand"><b>Die Akademie · Bonus-Assets</b></span>
+<span class="counter" id="counter">1 / 1</span>
+
+<div id="slides"></div>
+
+<button class="zone prev" id="prevZone" aria-label="Zurück"></button>
+<button class="zone next" id="nextZone" aria-label="Weiter"></button>
+<div class="dots" id="dots"></div>
+
+<script>
+(function(){
+  var BASE = 'https://raw.githubusercontent.com/Babybounce500/orbitron-novels-images/main/';
+  var slides = [
+    ['Academy Barracks','clonewars-extra/academy_barracks.jpg'],
+    ['Academy Command Center','clonewars-extra/academy_command_center.jpg'],
+    ['Academy Fortress Underground','clonewars-extra/academy_fortress_underground.jpg'],
+    ['Academy Fortress Underground Rebel Base','clonewars-extra/academy_fortress_underground_rebel_base.jpg'],
+    ['Academy Hangar Bay','clonewars-extra/academy_hangar_bay.jpg'],
+    ['Academy Training Grounds','clonewars-extra/academy_training_grounds.jpg'],
+    ['Ancient Kodex Teaching Young Droids','clonewars-extra/ancient_kodex_teaching_young_droids.jpg'],
+    ['Battle Worn Clone Soldiers','clonewars-extra/battle-worn_clone_soldiers.jpg'],
+    ['Blackwall Command Center','clonewars-extra/blackwall_command_center.jpg'],
+    ['Blackwall Consciousness Transcendence','clonewars-extra/blackwall_consciousness_transcendence.jpg'],
+    ['Blackwall Firewall Consciousness Gateway','clonewars-extra/blackwall_firewall_consciousness_gateway.jpg'],
+    ['Blackwall Fortress Enemy','clonewars-extra/blackwall_fortress_enemy.jpg'],
+    ['Blackwall Overview','clonewars-extra/blackwall_overview.jpg'],
+    ['Bly Hacking Enemy Systems','clonewars-extra/bly_hacking_enemy_systems.jpg'],
+    ['Bly Strategic Mastermind','clonewars-extra/bly_strategic_mastermind.jpg'],
+    ['Ch8 Tile9 Reunited Final Scene','clonewars-extra/ch8_tile9_reunited_final_scene.jpg'],
+    ['Choice The Decision','clonewars-extra/choice_-_the_decision.jpg'],
+    ['Clone Aerial Combat','clonewars-extra/clone_aerial_combat.jpg'],
+    ['Clone Chains Breaking','clonewars-extra/clone_chains_breaking.jpg'],
+    ['Clone Confrontation Authority','clonewars-extra/clone_confrontation_authority.jpg'],
+    ['Clone Defensive Position','clonewars-extra/clone_defensive_position.jpg'],
+    ['Clone Discovering Self','clonewars-extra/clone_discovering_self.jpg'],
+    ['Clone Final Stand','clonewars-extra/clone_final_stand.jpg'],
+    ['Clone Freedom Debate','clonewars-extra/clone_freedom_debate.jpg'],
+    ['Clone Heroic Sacrifice','clonewars-extra/clone_heroic_sacrifice.jpg'],
+    ['Clone High Speed Chase','clonewars-extra/clone_high-speed_chase.jpg'],
+    ['Clone Identity Acceptance','clonewars-extra/clone_identity_acceptance.jpg'],
+    ['Clone Individual Freedom','clonewars-extra/clone_individual_freedom.jpg'],
+    ['Clone Liberation Uprising','clonewars-extra/clone_liberation_uprising.jpg'],
+    ['Clone Resisting Conditioning','clonewars-extra/clone_resisting_conditioning.jpg'],
+    ['Clone Soldiers Emerging','clonewars-extra/clone_soldiers_emerging.jpg'],
+    ['Clone Squad At Command Center','clonewars-extra/clone_squad_at_command_center.jpg'],
+    ['Clone Squad In Tactical Gear','clonewars-extra/clone_squad_in_tactical_gear.jpg'],
+    ['Clone Squad Reunion','clonewars-extra/clone_squad_reunion.jpg'],
+    ['Clone Squad Unified Team','clonewars-extra/clone_squad_unified_team.jpg'],
+    ['Clone Synchronized Maneuver','clonewars-extra/clone_synchronized_maneuver.jpg'],
+    ['Clone Team Solidarity','clonewars-extra/clone_team_solidarity.jpg'],
+    ['Clone Team Synchronization','clonewars-extra/clone_team_synchronization.jpg'],
+    ['Clone Trooper Awakening','clonewars-extra/clone_trooper_awakening.jpg'],
+    ['Clone Truth Discovery','clonewars-extra/clone_truth_discovery.jpg'],
+    ['Clone Victory Triumph','clonewars-extra/clone_victory_triumph.jpg'],
+    ['Clone Warriors In Fortress','clonewars-extra/clone_warriors_in_fortress.jpg'],
+    ['Clone Wars Captain Kesh','clonewars-extra/clone_wars_captain_kesh.jpg'],
+    ['Clone Wars Combat Soldier Thorne','clonewars-extra/clone_wars_combat_soldier_thorne.jpg'],
+    ['Clone Wars Epic Battle Scene','clonewars-extra/clone_wars_epic_battle_scene.jpg'],
+    ['Clone Wars Fortress Academy','clonewars-extra/clone_wars_fortress_academy.jpg'],
+    ['Clone Wars Military Commander Vex','clonewars-extra/clone_wars_military_commander_vex.jpg'],
+    ['Clone Wars Pilot Technician Kess','clonewars-extra/clone_wars_pilot_technician_kess.jpg'],
+    ['Clone Wars Scout Spy Mira','clonewars-extra/clone_wars_scout_spy_mira.jpg'],
+    ['Clone Wars Villain General Vance','clonewars-extra/clone_wars_villain_general_vance.jpg'],
+    ['Clones Awakening Beginning','clonewars-extra/clones_awakening_beginning.jpg'],
+    ['Clones Awakening Consciousness','clonewars-extra/clones_awakening_consciousness.jpg'],
+    ['Clones Awakening In Chambers','clonewars-extra/clones_awakening_in_chambers.jpg'],
+    ['Clones In Command Chamber','clonewars-extra/clones_in_command_chamber.jpg'],
+    ['Cody Tactical Genius','clonewars-extra/cody_tactical_genius.jpg'],
+    ['Commander Rex Tactical Portrait','clonewars-extra/commander_rex_tactical_portrait.jpg'],
+    ['Crosshair Philosophical Soldier','clonewars-extra/crosshair_philosophical_soldier.jpg'],
+    ['Digital Consciousness Awakening','clonewars-extra/digital_consciousness_-_awakening.jpg'],
+    ['Digital Void Prison','clonewars-extra/digital_void_-_prison.jpg'],
+    ['Digital Void Vance\'S Prison','clonewars-extra/digital_void_-_vance\'s_prison.jpg'],
+    ['Droid Doubting Consciousness Freedom','clonewars-extra/droid_doubting_consciousness_freedom.jpg'],
+    ['Droids Awakening From Activation Pods','clonewars-extra/droids_awakening_from_activation_pods.jpg'],
+    ['Echo Hacker Ninja','clonewars-extra/echo_-_hacker_ninja.jpg'],
+    ['Elite Clone Squad In Formation','clonewars-extra/elite_clone_squad_in_formation.jpg'],
+    ['Epic Ai Ninjas Battle Scene','clonewars-extra/epic_ai_ninjas_battle_scene.jpg'],
+    ['Epic Final Battle At Imperial Citadel','clonewars-extra/epic_final_battle_at_imperial_citadel.jpg'],
+    ['Escape Hyperspace Jump','clonewars-extra/escape_-_hyperspace_jump.jpg'],
+    ['Escape Hyperspace Sequence','clonewars-extra/escape_-_hyperspace_sequence.jpg'],
+    ['Fabrication Chamber Birth Moment','clonewars-extra/fabrication_chamber_-_birth_moment.jpg'],
+    ['Final Battle With Formless The Architect','clonewars-extra/final_battle_with_formless_the_architect.jpg'],
+    ['Final Stand Setup','clonewars-extra/final_stand_setup.jpg'],
+    ['Five Ai Ninja Heroes Cyberpunk','clonewars-extra/five_ai_ninja_heroes_cyberpunk.jpg'],
+    ['Five Droids In Team Combat Sync','clonewars-extra/five_droids_in_team_combat_sync.jpg'],
+    ['Five Elite Droid Soldiers Battlefield Formation','clonewars-extra/five_elite_droid_soldiers_battlefield_formation.jpg'],
+    ['Five Elite Droids Team Formation','clonewars-extra/five_elite_droids_team_formation.jpg'],
+    ['Five United Team Formation','clonewars-extra/five_united_-_team_formation.jpg'],
+    ['Forge Combat Ninja','clonewars-extra/forge_-_combat_ninja.jpg'],
+    ['Forge Dissolution Being Deleted','clonewars-extra/forge_dissolution_being_deleted.jpg'],
+    ['Four Droids Ascending Citadel Tower','clonewars-extra/four_droids_ascending_citadel_tower.jpg'],
+    ['Four Droids Final Push Citadel Victory','clonewars-extra/four_droids_final_push_citadel_victory.jpg'],
+    ['Four Droids Mourning Fallen Comrade','clonewars-extra/four_droids_mourning_fallen_comrade.jpg'],
+    ['Freedom\'S Cost Devastation','clonewars-extra/freedom\'s_cost_-_devastation.jpg'],
+    ['Futuristic Military City','clonewars-extra/futuristic_military_city.jpg'],
+    ['Imperial Dominance Authority','clonewars-extra/imperial_dominance_-_authority.jpg'],
+    ['Imperial Fleet Attack Overwhelming','clonewars-extra/imperial_fleet_attack_-_overwhelming.jpg'],
+    ['Imperial Fleet Attack Overwhelming Force','clonewars-extra/imperial_fleet_attack_overwhelming_force.jpg'],
+    ['Kampfzone Battle Research','clonewars-extra/kampfzone_-_battle_research.jpg'],
+    ['Kapitel 1 Awakening','clonewars-extra/kapitel_1_-_awakening.jpg'],
+    ['Kapitel 1 Awakening Birth Moment','clonewars-extra/kapitel_1_awakening_birth_moment.jpg'],
+    ['Kapitel 2 Fragment Truth','clonewars-extra/kapitel_2_-_fragment_truth.jpg'],
+    ['Kapitel 3 Dark Secrets','clonewars-extra/kapitel_3_-_dark_secrets.jpg'],
+    ['Kapitel 4 Nexus Confrontation','clonewars-extra/kapitel_4_-_nexus_confrontation.jpg'],
+    ['Kapitel 5 Blackwall','clonewars-extra/kapitel_5_-_blackwall.jpg'],
+    ['Kapitel 7 True Sacrifice','clonewars-extra/kapitel_7_-_true_sacrifice.jpg'],
+    ['Kaze Speed Ninja','clonewars-extra/kaze_-_speed_ninja.jpg'],
+    ['Kernkonflikt Freedom Vs Programming','clonewars-extra/kernkonflikt_-_freedom_vs_programming.jpg'],
+    ['Kesh Combat Warrior Droid','clonewars-extra/kesh_-_combat_warrior_droid.jpg'],
+    ['Kesh Combat Warrior Droid Portrait','clonewars-extra/kesh_combat_warrior_droid_portrait.jpg'],
+    ['Kesh Sacrifice Entering Imperial Trap','clonewars-extra/kesh_sacrifice_entering_imperial_trap.jpg'],
+    ['Kesh Warrior Droid With Plasma Katana','clonewars-extra/kesh_warrior_droid_with_plasma_katana.jpg'],
+    ['Kess Dual Consciousness Hacker','clonewars-extra/kess_-_dual_consciousness_hacker.jpg'],
+    ['Kess Virus Integration','clonewars-extra/kess_-_virus_integration.jpg'],
+    ['Kess Virus Transformation','clonewars-extra/kess_-_virus_transformation.jpg'],
+    ['Kess Dual Consciousness Hacker Droid Portrait','clonewars-extra/kess_dual_consciousness_hacker_droid_portrait.jpg'],
+    ['Kess Fragmented Dual Consciousness Android','clonewars-extra/kess_fragmented_dual_consciousness_android.jpg'],
+    ['Kess Infected By Imperial Virus','clonewars-extra/kess_infected_by_imperial_virus.jpg'],
+    ['Massive 2km Imperial Fortress Citadel','clonewars-extra/massive_2km_imperial_fortress_citadel.jpg'],
+    ['Military Space Dock','clonewars-extra/military_space_dock.jpg'],
+    ['Mira Infiltrator Spy Droid','clonewars-extra/mira_-_infiltrator_spy_droid.jpg'],
+    ['Mira Infiltrator Spy Droid Portrait','clonewars-extra/mira_infiltrator_spy_droid_portrait.jpg'],
+    ['Mira Stealth Operative Strike','clonewars-extra/mira_stealth_operative_strike.jpg'],
+    ['Mira Stealth Spy Droid Invisibility','clonewars-extra/mira_stealth_spy_droid_invisibility.jpg'],
+    ['New Generation Future Hope','clonewars-extra/new_generation_-_future_hope.jpg'],
+    ['New Generation Teaching','clonewars-extra/new_generation_-_teaching.jpg'],
+    ['Nexus Mystic Ninja','clonewars-extra/nexus_-_mystic_ninja.jpg'],
+    ['Nexus Perfect Successor','clonewars-extra/nexus_-_perfect_successor.jpg'],
+    ['Nexus Vs Kesh Combat Duel','clonewars-extra/nexus_vs_kesh_-_combat_duel.jpg'],
+    ['Philosophical Revelation Droids Weapons Truth','clonewars-extra/philosophical_revelation_droids_weapons_truth.jpg'],
+    ['Rebellion Uprising Against Empire Forces','clonewars-extra/rebellion_uprising_against_empire_forces.jpg'],
+    ['Revelation Vance Truth Revealed','clonewars-extra/revelation_-_vance_truth_revealed.jpg'],
+    ['Shadow Stealth Ninja','clonewars-extra/shadow_-_stealth_ninja.jpg'],
+    ['Team Unified After Philosophy Bonding','clonewars-extra/team_unified_after_philosophy_bonding.jpg'],
+    ['Tech Protector Guardian','clonewars-extra/tech_protector_guardian.jpg'],
+    ['Ten Years Later New Hope','clonewars-extra/ten_years_later_-_new_hope.jpg'],
+    ['The Architect Villain','clonewars-extra/the_architect_-_villain.jpg'],
+    ['The Architect Cosmic Entity Reveal','clonewars-extra/the_architect_cosmic_entity_reveal.jpg'],
+    ['The Blackwall Firewall Zone','clonewars-extra/the_blackwall_-_firewall_zone.jpg'],
+    ['The Citadel Dark Tower','clonewars-extra/the_citadel_-_dark_tower.jpg'],
+    ['The Last Stand Final Battle','clonewars-extra/the_last_stand_-_final_battle.jpg'],
+    ['The Message Freedom Broadcast','clonewars-extra/the_message_-_freedom_broadcast.jpg'],
+    ['The Message Freedom Broadcast','clonewars-extra/the_message_freedom_broadcast.jpg'],
+    ['Thorne\'S Sacrifice Final Stand','clonewars-extra/thorne\'s_sacrifice_-_final_stand.jpg'],
+    ['Thorne Ancient Witness Droid','clonewars-extra/thorne_-_ancient_witness_droid.jpg'],
+    ['Thorne Ancient Witness Droid Portrait','clonewars-extra/thorne_ancient_witness_droid_portrait.jpg'],
+    ['Thorne Sage Philosophical Young Droid','clonewars-extra/thorne_sage_philosophical_young_droid.jpg'],
+    ['Thorne Seeing Multiple Possible Futures','clonewars-extra/thorne_seeing_multiple_possible_futures.jpg'],
+    ['Vance Fragmented Original','clonewars-extra/vance_-_fragmented_original.jpg'],
+    ['Vance Corrupted Villain Droid Overlord','clonewars-extra/vance_corrupted_villain_droid_overlord.jpg'],
+    ['Vance Fragmented Original Droid Portrait','clonewars-extra/vance_fragmented_original_droid_portrait.jpg'],
+    ['Vance Message Broadcast','clonewars-extra/vance_message_broadcast.jpg'],
+    ['Vex Elite Leader Droid','clonewars-extra/vex_-_elite_leader_droid.jpg'],
+    ['Vex Commander Droid Leadership','clonewars-extra/vex_commander_droid_leadership.jpg'],
+    ['Vex Elite Leader Droid Portrait','clonewars-extra/vex_elite_leader_droid_portrait.jpg'],
+    ['Vex Speed Combat Mission Blur','clonewars-extra/vex_speed_combat_mission_blur.jpg'],
+    ['Victory Bittersweet End','clonewars-extra/victory_-_bittersweet_end.jpg'],
+    ['Wolffe Aggressive Warrior','clonewars-extra/wolffe_aggressive_warrior.jpg'],
+    ['Wolffe Vibroblade Defense','clonewars-extra/wolffe_vibroblade_defense.jpg']
+  ];
+
+  var container = document.getElementById('slides');
+  var dotsWrap = document.getElementById('dots');
+  var frag = document.createDocumentFragment();
+  var dotFrag = document.createDocumentFragment();
+
+  slides.forEach(function(s, i){
+    var title = s[0], img = s[1];
+    var el = document.createElement('div');
+    el.className = 'slide' + (i === 0 ? ' active' : '');
+    el.innerHTML =
+      '<img src="' + BASE + img + '" alt="' + title + '" loading="' + (i===0?'eager':'lazy') + '">' +
+      '<div class="cap"><span class="num">' + (i+1) + ' / ' + slides.length + '</span><h2>' + title + '</h2></div>';
+    frag.appendChild(el);
+    var dot = document.createElement('span');
+    if (i === 0) dot.className = 'on';
+    dotFrag.appendChild(dot);
+  });
+  container.appendChild(frag);
+  dotsWrap.appendChild(dotFrag);
+
+  var slideEls = container.querySelectorAll('.slide');
+  var dots = dotsWrap.querySelectorAll('span');
+  var counter = document.getElementById('counter');
+  var idx = 0;
+
+  function render(){
+    slideEls.forEach(function(s, i){ s.classList.toggle('active', i === idx); });
+    dots.forEach(function(d, i){ d.classList.toggle('on', i === idx); });
+    counter.textContent = (idx+1) + ' / ' + slideEls.length;
+  }
+  function go(delta){
+    var next = idx + delta;
+    if (next < 0 || next > slideEls.length - 1) return;
+    idx = next;
+    render();
+  }
+
+  document.getElementById('prevZone').addEventListener('click', function(){ go(-1); });
+  document.getElementById('nextZone').addEventListener('click', function(){ go(1); });
+  document.addEventListener('keydown', function(e){
+    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    if (e.key === 'ArrowRight' || e.key === ' '){ go(1); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft'){ go(-1); e.preventDefault(); }
+  });
+  var touchX = null;
+  document.addEventListener('touchstart', function(e){ touchX = e.touches[0].clientX; }, { passive:true });
+  document.addEventListener('touchend', function(e){
+    if (touchX === null) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 44) go(dx < 0 ? 1 : -1);
+    touchX = null;
+  }, { passive:true });
+
+  render();
+})();
+</script>

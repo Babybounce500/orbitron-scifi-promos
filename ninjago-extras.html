@@ -1,0 +1,279 @@
+<title>Nexus Ninjas — Bonus-Galerie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#0a0c0f; --ink:#e9e3d6; --ink-dim:#a9a49a; --gold:#c9a24b;
+    --display:'Cinzel',Georgia,serif; --mono:'JetBrains Mono','Courier New',monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{ margin:0; background:var(--void); color:var(--ink); overflow:hidden; }
+  ::selection{ background:rgba(201,162,75,.5); color:#0a0c0f; }
+  .slide{ position:fixed; inset:0; opacity:0; visibility:hidden; transition:opacity .25s linear; }
+  .slide.active{ opacity:1; visibility:visible; }
+  .slide img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .slide::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(10,12,15,.05) 0%, rgba(10,12,15,.1) 55%, rgba(10,12,15,.88) 100%);
+  }
+  .slide .cap{ position:absolute; left:0; right:0; bottom:9vh; z-index:2; text-align:center; padding:0 1.5rem; }
+  .slide .num{ display:inline-block; font-family:var(--mono); font-size:.7rem; letter-spacing:.16em; color:var(--gold); margin-bottom:.5rem; }
+  .slide h2{ font-family:var(--display); font-weight:600; font-size:clamp(1.3rem,3.8vw,2.2rem); margin:0; text-wrap:balance; text-shadow:0 2px 20px rgba(0,0,0,.7); }
+  .brand{
+    position:fixed; top:1.1rem; left:1.3rem; z-index:5;
+    font-family:var(--mono); font-size:.68rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink-dim); background:rgba(10,12,15,.5); border:1px solid rgba(233,227,214,.16);
+    padding:.4rem .75rem; border-radius:3px;
+  }
+  .brand b{ color:var(--gold); font-weight:500; }
+  .dots{ position:fixed; bottom:1.4rem; left:0; right:0; z-index:5; display:flex; justify-content:center; gap:4px; padding:0 6vw; flex-wrap:nowrap; overflow:hidden; }
+  .dots span{ width:4px; height:4px; min-width:4px; border-radius:50%; background:rgba(233,227,214,.25); transition:background .2s,transform .2s; }
+  .dots span.on{ background:var(--gold); transform:scale(1.6); }
+  .zone{ position:fixed; top:0; bottom:0; width:34%; z-index:4; cursor:pointer; background:transparent; border:0; }
+  .zone.prev{ left:0; }
+  .zone.next{ right:0; }
+  .counter{ position:fixed; top:1.1rem; right:1.3rem; z-index:5; font-family:var(--mono); font-size:.68rem; color:var(--ink-dim); font-variant-numeric:tabular-nums; }
+</style>
+
+<span class="brand"><b>Nexus Ninjas · Bonus-Assets</b></span>
+<span class="counter" id="counter">1 / 1</span>
+
+<div id="slides"></div>
+
+<button class="zone prev" id="prevZone" aria-label="Zurück"></button>
+<button class="zone next" id="nextZone" aria-label="Weiter"></button>
+<div class="dots" id="dots"></div>
+
+<script>
+(function(){
+  var BASE = 'https://raw.githubusercontent.com/Babybounce500/orbitron-novels-images/main/';
+  var slides = [
+    ['Academy Finale','ninjago-extra/academy_finale.jpg'],
+    ['Academy Training','ninjago-extra/academy_training.jpg'],
+    ['Academy Training Squad','ninjago-extra/academy_training_squad.jpg'],
+    ['Accept Purpose','ninjago-extra/accept_purpose.jpg'],
+    ['Acceptance Achieved','ninjago-extra/acceptance_achieved.jpg'],
+    ['Acceptance Peace','ninjago-extra/acceptance_peace.jpg'],
+    ['Akt I: The Awakening','ninjago-extra/act_i_-_the_awakening.jpg'],
+    ['Akt II: The Truth Revealed','ninjago-extra/act_ii_-_the_truth_revealed.jpg'],
+    ['Akt III: The Uprising','ninjago-extra/act_iii_-_the_uprising.jpg'],
+    ['Ai Ninja Leader Portrait','ninjago-extra/ai_ninja_leader_portrait.jpg'],
+    ['Akademie Fortress Sanctuary Ship','ninjago-extra/akademie_fortress_-_sanctuary_ship.jpg'],
+    ['Alive Reborn','ninjago-extra/alive_reborn.jpg'],
+    ['Allied Bond','ninjago-extra/allied_bond.jpg'],
+    ['Architect Reveals','ninjago-extra/architect_reveals.jpg'],
+    ['Betrayal Moment','ninjago-extra/betrayal_moment.jpg'],
+    ['Blackwall Gateway','ninjago-extra/blackwall_gateway.jpg'],
+    ['Blackwall Transformation','ninjago-extra/blackwall_transformation.jpg'],
+    ['Breaking Barriers','ninjago-extra/breaking_barriers.jpg'],
+    ['Ch1 Tile10 First Questions','ninjago-extra/ch1_tile10_-_first_questions.jpg'],
+    ['Ch2 Tile10 Regrouping','ninjago-extra/ch2_tile10_-_regrouping.jpg'],
+    ['Ch2 Tile4 Echo Hacking','ninjago-extra/ch2_tile4_-_echo_hacking.jpg'],
+    ['Ch3 Tile10 United Team','ninjago-extra/ch3_tile10_-_united_team.jpg'],
+    ['Ch4 Tile10 Moving Forward','ninjago-extra/ch4_tile10_-_moving_forward.jpg'],
+    ['Ch5 Tile10 Alive','ninjago-extra/ch5_tile10_-_alive.jpg'],
+    ['Ch6 Tile10 Acceptance','ninjago-extra/ch6_tile10_-_acceptance.jpg'],
+    ['Ch7 Tile10 Final Push','ninjago-extra/ch7_tile10_-_final_push.jpg'],
+    ['Chapter 01 Awakening','ninjago-extra/chapter_01_-_awakening.jpg'],
+    ['Chapter 02 First Mission','ninjago-extra/chapter_02_-_first_mission.jpg'],
+    ['Chapter 03 Revelation','ninjago-extra/chapter_03_-_revelation.jpg'],
+    ['Chapter 04 Betrayal','ninjago-extra/chapter_04_-_betrayal.jpg'],
+    ['Chapter 05 Blackwall','ninjago-extra/chapter_05_-_blackwall.jpg'],
+    ['Chapter 06 Vortex Speaks','ninjago-extra/chapter_06_-_vortex_speaks.jpg'],
+    ['Chapter 07 Sacrifice','ninjago-extra/chapter_07_-_sacrifice.jpg'],
+    ['Chapter 08 Final Battle','ninjago-extra/chapter_08_-_final_battle.jpg'],
+    ['Choice The Decision','ninjago-extra/choice_-_the_decision.jpg'],
+    ['Citadel Ascent','ninjago-extra/citadel_ascent.jpg'],
+    ['Code Of Silence Revelation','ninjago-extra/code_of_silence_revelation.jpg'],
+    ['Combat Training','ninjago-extra/combat_training.jpg'],
+    ['Communications Tech','ninjago-extra/communications_tech.jpg'],
+    ['Conflict Enlightenment','ninjago-extra/conflict_enlightenment.jpg'],
+    ['Danger Spreads','ninjago-extra/danger_spreads.jpg'],
+    ['Digital Consciousness Awakening','ninjago-extra/digital_consciousness_-_awakening.jpg'],
+    ['Duty Understood','ninjago-extra/duty_understood.jpg'],
+    ['Echo Hacker Ninja','ninjago-extra/echo_-_hacker_ninja.jpg'],
+    ['Echo Duet','ninjago-extra/echo_duet.jpg'],
+    ['Echo Infected Crisis','ninjago-extra/echo_infected_crisis.jpg'],
+    ['Echo Infected Virus','ninjago-extra/echo_infected_virus.jpg'],
+    ['Elder Teaches Wisdom','ninjago-extra/elder_teaches_wisdom.jpg'],
+    ['Elite Droid Commander','ninjago-extra/elite_droid_commander.jpg'],
+    ['Emotions Awakening','ninjago-extra/emotions_awakening.jpg'],
+    ['Engineer Repairs','ninjago-extra/engineer_repairs.jpg'],
+    ['Epic Ai Ninjas Battle Scene','ninjago-extra/epic_ai_ninjas_battle_scene.jpg'],
+    ['Escape Trap','ninjago-extra/escape_trap.jpg'],
+    ['Eternal Flame','ninjago-extra/eternal_flame.jpg'],
+    ['Fabrication Chamber Birth Moment','ninjago-extra/fabrication_chamber_-_birth_moment.jpg'],
+    ['Facing Odds','ninjago-extra/facing_odds.jpg'],
+    ['Final Battle Epic','ninjago-extra/final_battle_epic.jpg'],
+    ['Final Sunset Home','ninjago-extra/final_sunset_home.jpg'],
+    ['First Mission Combat','ninjago-extra/first_mission_combat.jpg'],
+    ['Five Ai Ninja Heroes Cyberpunk','ninjago-extra/five_ai_ninja_heroes_cyberpunk.jpg'],
+    ['Five United Team Formation','ninjago-extra/five_united_-_team_formation.jpg'],
+    ['Five United Soldiers','ninjago-extra/five_united_soldiers.jpg'],
+    ['Forge Combat Ninja','ninjago-extra/forge_-_combat_ninja.jpg'],
+    ['Forge Power','ninjago-extra/forge_power.jpg'],
+    ['Forge Sacrifice','ninjago-extra/forge_sacrifice.jpg'],
+    ['Forge Warrior','ninjago-extra/forge_warrior.jpg'],
+    ['Forgiveness Moment','ninjago-extra/forgiveness_moment.jpg'],
+    ['Fortress Sanctuary Ship','ninjago-extra/fortress_sanctuary_ship.jpg'],
+    ['Fragmentation Split','ninjago-extra/fragmentation_split.jpg'],
+    ['Free Will Choice','ninjago-extra/free_will_choice.jpg'],
+    ['Freedom\'S Cost Devastation Aftermath','ninjago-extra/freedom\'s_cost_-_devastation_aftermath.jpg'],
+    ['Freedom Choice','ninjago-extra/freedom_choice.jpg'],
+    ['Future Possibilities','ninjago-extra/future_possibilities.jpg'],
+    ['Ghostly Remembrance','ninjago-extra/ghostly_remembrance.jpg'],
+    ['Graduation Ceremony','ninjago-extra/graduation_ceremony.jpg'],
+    ['Gratitude Fellowship','ninjago-extra/gratitude_fellowship.jpg'],
+    ['Harmony Unified','ninjago-extra/harmony_unified.jpg'],
+    ['Hero Glory Moment','ninjago-extra/hero_glory_moment.jpg'],
+    ['Hidden Power','ninjago-extra/hidden_power.jpg'],
+    ['Hidden Truth','ninjago-extra/hidden_truth.jpg'],
+    ['Honor Guard','ninjago-extra/honor_guard.jpg'],
+    ['Honoring Fallen','ninjago-extra/honoring_fallen.jpg'],
+    ['Hope In Darkness','ninjago-extra/hope_in_darkness.jpg'],
+    ['Imperial Dominance Authority Machine','ninjago-extra/imperial_dominance_-_authority_machine.jpg'],
+    ['Imperial Fleet Attack Overwhelming Force','ninjago-extra/imperial_fleet_attack_-_overwhelming_force.jpg'],
+    ['Kampfzone Battle Research','ninjago-extra/kampfzone_-_battle_research.jpg'],
+    ['Kapitel 1 Awakening','ninjago-extra/kapitel_1_-_awakening.jpg'],
+    ['Kapitel 2 Fragment Truth','ninjago-extra/kapitel_2_-_fragment_truth.jpg'],
+    ['Kapitel 3 Dark Secrets','ninjago-extra/kapitel_3_-_dark_secrets.jpg'],
+    ['Kapitel 4 Nexus Confrontation','ninjago-extra/kapitel_4_-_nexus_confrontation.jpg'],
+    ['Kapitel 7 True Sacrifice','ninjago-extra/kapitel_7_-_true_sacrifice.jpg'],
+    ['Kaze Speed Ninja','ninjago-extra/kaze_-_speed_ninja.jpg'],
+    ['Kaze Awakening','ninjago-extra/kaze_awakening.jpg'],
+    ['Kernkonflikt Freedom Vs Programming','ninjago-extra/kernkonflikt_-_freedom_vs_programming.jpg'],
+    ['Kesh Combat Warrior Droid','ninjago-extra/kesh_-_combat_warrior_droid.jpg'],
+    ['Kess Dual Consciousness Hacker','ninjago-extra/kess_-_dual_consciousness_hacker.jpg'],
+    ['Legacy Continues','ninjago-extra/legacy_continues.jpg'],
+    ['Legacy Monument','ninjago-extra/legacy_monument.jpg'],
+    ['Lego Ninjago Ai Ninja Unified With Team','ninjago-extra/lego_ninjago_ai_ninja_unified_with_team.jpg'],
+    ['Lego Ninjago Blackwall Firewall Zone','ninjago-extra/lego_ninjago_blackwall_firewall_zone.jpg'],
+    ['Lego Ninjago Echo Dual Consciousness','ninjago-extra/lego_ninjago_echo_dual_consciousness.jpg'],
+    ['Lego Ninjago Four Ninjas United Stand','ninjago-extra/lego_ninjago_four_ninjas_united_stand.jpg'],
+    ['Lego Ninjago Vortex Villain Menacing','ninjago-extra/lego_ninjago_vortex_villain_menacing.jpg'],
+    ['Lone Warrior','ninjago-extra/lone_warrior.jpg'],
+    ['Love Connection','ninjago-extra/love_connection.jpg'],
+    ['Medic Healing','ninjago-extra/medic_healing.jpg'],
+    ['Memorial Service','ninjago-extra/memorial_service.jpg'],
+    ['Mira Infiltrator Spy Droid','ninjago-extra/mira_-_infiltrator_spy_droid.jpg'],
+    ['Monument Eternal','ninjago-extra/monument_eternal.jpg'],
+    ['Moving Forward','ninjago-extra/moving_forward.jpg'],
+    ['Nemesis Confrontation','ninjago-extra/nemesis_confrontation.jpg'],
+    ['New Beginning Dawn','ninjago-extra/new_beginning_dawn.jpg'],
+    ['New Generation','ninjago-extra/new_generation.jpg'],
+    ['Nexus Mystic Ninja','ninjago-extra/nexus_-_mystic_ninja.jpg'],
+    ['Nexus Futures','ninjago-extra/nexus_futures.jpg'],
+    ['Nexus Heals','ninjago-extra/nexus_heals.jpg'],
+    ['Nexus Hero Battle','ninjago-extra/nexus_hero_battle.jpg'],
+    ['Nexus Hero Main','ninjago-extra/nexus_hero_main.jpg'],
+    ['Nexus Hero Portrait','ninjago-extra/nexus_hero_portrait.jpg'],
+    ['Nexus Vs Kesh Combat Duel','ninjago-extra/nexus_vs_kesh_-_combat_duel.jpg'],
+    ['Nexus World The Premise','ninjago-extra/nexus_world_-_the_premise.jpg'],
+    ['Patrol Squad Corridor','ninjago-extra/patrol_squad_corridor.jpg'],
+    ['Perfect Maneuver','ninjago-extra/perfect_maneuver.jpg'],
+    ['Philosophical Debate','ninjago-extra/philosophical_debate.jpg'],
+    ['Philosophy Deepens','ninjago-extra/philosophy_deepens.jpg'],
+    ['Pilot Cockpit','ninjago-extra/pilot_cockpit.jpg'],
+    ['Protecting Innocents','ninjago-extra/protecting_innocents.jpg'],
+    ['Reborn Consciousness','ninjago-extra/reborn_consciousness.jpg'],
+    ['Reckoning Battle','ninjago-extra/reckoning_battle.jpg'],
+    ['Resilience Found','ninjago-extra/resilience_found.jpg'],
+    ['Returning Home','ninjago-extra/returning_home.jpg'],
+    ['Revelation Vance Truth Revealed','ninjago-extra/revelation_-_vance_truth_revealed.jpg'],
+    ['Sacrifice Heroic','ninjago-extra/sacrifice_heroic.jpg'],
+    ['Scout Infiltration','ninjago-extra/scout_infiltration.jpg'],
+    ['Selfless Choice','ninjago-extra/selfless_choice.jpg'],
+    ['Sergeant Rallies','ninjago-extra/sergeant_rallies.jpg'],
+    ['Shadow Stealth Ninja','ninjago-extra/shadow_-_stealth_ninja.jpg'],
+    ['Shadow Intelligence','ninjago-extra/shadow_intelligence.jpg'],
+    ['Shadow Mission','ninjago-extra/shadow_mission.jpg'],
+    ['Shadow Vision','ninjago-extra/shadow_vision.jpg'],
+    ['Stealth Infiltration','ninjago-extra/stealth_infiltration.jpg'],
+    ['Strike Team Ready','ninjago-extra/strike_team_ready.jpg'],
+    ['Stronger Team Unity','ninjago-extra/stronger_team_unity.jpg'],
+    ['Sunset Peace','ninjago-extra/sunset_peace.jpg'],
+    ['Synchronized Squad','ninjago-extra/synchronized_squad.jpg'],
+    ['Tactical Analysis','ninjago-extra/tactical_analysis.jpg'],
+    ['Team Battle Ready','ninjago-extra/team_battle_ready.jpg'],
+    ['Team Unity The Five Warriors','ninjago-extra/team_unity_-_the_five_warriors.jpg'],
+    ['Ten Years Later New Hope','ninjago-extra/ten_years_later_-_new_hope.jpg'],
+    ['The Architect Villain','ninjago-extra/the_architect_-_villain.jpg'],
+    ['The Blackwall Firewall Zone','ninjago-extra/the_blackwall_-_firewall_zone.jpg'],
+    ['The Citadel Dark Tower','ninjago-extra/the_citadel_-_dark_tower.jpg'],
+    ['The Core Conflict','ninjago-extra/the_core_conflict.jpg'],
+    ['The Last Stand Final Battle','ninjago-extra/the_last_stand_-_final_battle.jpg'],
+    ['The Markets Black Market','ninjago-extra/the_markets_-_black_market.jpg'],
+    ['The Message Freedom Broadcast','ninjago-extra/the_message_-_freedom_broadcast.jpg'],
+    ['The Sanctuary Safe Haven','ninjago-extra/the_sanctuary_-_safe_haven.jpg'],
+    ['Thorne\'S Sacrifice Final Stand','ninjago-extra/thorne\'s_sacrifice_-_final_stand.jpg'],
+    ['Thorne Ancient Witness Droid','ninjago-extra/thorne_-_ancient_witness_droid.jpg'],
+    ['Transformed Return','ninjago-extra/transformed_return.jpg'],
+    ['Ultimate Sacrifice','ninjago-extra/ultimate_sacrifice.jpg'],
+    ['Vance Fragmented Original','ninjago-extra/vance_-_fragmented_original.jpg'],
+    ['Vex Elite Leader Droid','ninjago-extra/vex_-_elite_leader_droid.jpg'],
+    ['Victory Celebration','ninjago-extra/victory_celebration.jpg'],
+    ['Victory Claimed','ninjago-extra/victory_claimed.jpg'],
+    ['Vortex Garmadon Style Villain','ninjago-extra/vortex_-_garmadon_style_villain.jpg'],
+    ['Vortex Revelation','ninjago-extra/vortex_revelation.jpg'],
+    ['Weapon Specialist','ninjago-extra/weapon_specialist.jpg'],
+    ['Weapon Truth Droid','ninjago-extra/weapon_truth_droid.jpg']
+  ];
+
+  var container = document.getElementById('slides');
+  var dotsWrap = document.getElementById('dots');
+  var frag = document.createDocumentFragment();
+  var dotFrag = document.createDocumentFragment();
+
+  slides.forEach(function(s, i){
+    var title = s[0], img = s[1];
+    var el = document.createElement('div');
+    el.className = 'slide' + (i === 0 ? ' active' : '');
+    el.innerHTML =
+      '<img src="' + BASE + img + '" alt="' + title + '" loading="' + (i===0?'eager':'lazy') + '">' +
+      '<div class="cap"><span class="num">' + (i+1) + ' / ' + slides.length + '</span><h2>' + title + '</h2></div>';
+    frag.appendChild(el);
+    var dot = document.createElement('span');
+    if (i === 0) dot.className = 'on';
+    dotFrag.appendChild(dot);
+  });
+  container.appendChild(frag);
+  dotsWrap.appendChild(dotFrag);
+
+  var slideEls = container.querySelectorAll('.slide');
+  var dots = dotsWrap.querySelectorAll('span');
+  var counter = document.getElementById('counter');
+  var idx = 0;
+
+  function render(){
+    slideEls.forEach(function(s, i){ s.classList.toggle('active', i === idx); });
+    dots.forEach(function(d, i){ d.classList.toggle('on', i === idx); });
+    counter.textContent = (idx+1) + ' / ' + slideEls.length;
+  }
+  function go(delta){
+    var next = idx + delta;
+    if (next < 0 || next > slideEls.length - 1) return;
+    idx = next;
+    render();
+  }
+
+  document.getElementById('prevZone').addEventListener('click', function(){ go(-1); });
+  document.getElementById('nextZone').addEventListener('click', function(){ go(1); });
+  document.addEventListener('keydown', function(e){
+    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    if (e.key === 'ArrowRight' || e.key === ' '){ go(1); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft'){ go(-1); e.preventDefault(); }
+  });
+  var touchX = null;
+  document.addEventListener('touchstart', function(e){ touchX = e.touches[0].clientX; }, { passive:true });
+  document.addEventListener('touchend', function(e){
+    if (touchX === null) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 44) go(dx < 0 ? 1 : -1);
+    touchX = null;
+  }, { passive:true });
+
+  render();
+})();
+</script>
