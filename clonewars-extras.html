@@ -11,14 +11,20 @@
   html,body{height:100%;}
   body{ margin:0; background:var(--void); color:var(--ink); overflow:hidden; }
   ::selection{ background:rgba(201,162,75,.5); color:#0a0c0f; }
-  .slide{ position:fixed; inset:0; opacity:0; visibility:hidden; transition:opacity .25s linear; }
+  .slide{ position:fixed; inset:0; opacity:0; visibility:hidden; transition:opacity .25s linear; overflow:hidden; }
   .slide.active{ opacity:1; visibility:visible; }
-  .slide img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .slide img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:#000; }
+  .slide img.is-portrait{
+    object-fit:contain;
+    background:
+      radial-gradient(ellipse at center, rgba(60,52,38,.55) 0%, rgba(10,12,15,.97) 72%),
+      var(--void);
+  }
   .slide::after{
-    content:""; position:absolute; inset:0;
+    content:""; position:absolute; inset:0; pointer-events:none;
     background:linear-gradient(180deg, rgba(10,12,15,.05) 0%, rgba(10,12,15,.1) 55%, rgba(10,12,15,.88) 100%);
   }
-  .slide .cap{ position:absolute; left:0; right:0; bottom:9vh; z-index:2; text-align:center; padding:0 1.5rem; }
+  .slide .cap{ position:absolute; left:0; right:0; bottom:calc(9vh + env(safe-area-inset-bottom)); z-index:2; text-align:center; padding:0 1.5rem; }
   .slide .num{ display:inline-block; font-family:var(--mono); font-size:.7rem; letter-spacing:.16em; color:var(--gold); margin-bottom:.5rem; }
   .slide h2{ font-family:var(--display); font-weight:600; font-size:clamp(1.3rem,3.8vw,2.2rem); margin:0; text-wrap:balance; text-shadow:0 2px 20px rgba(0,0,0,.7); }
   .brand{
@@ -28,13 +34,25 @@
     padding:.4rem .75rem; border-radius:3px;
   }
   .brand b{ color:var(--gold); font-weight:500; }
-  .dots{ position:fixed; bottom:1.4rem; left:0; right:0; z-index:5; display:flex; justify-content:center; gap:4px; padding:0 6vw; flex-wrap:nowrap; overflow:hidden; }
+  .dots{ position:fixed; bottom:calc(1.4rem + env(safe-area-inset-bottom)); left:0; right:0; z-index:5; display:flex; justify-content:center; gap:4px; padding:0 6vw; flex-wrap:nowrap; overflow:hidden; }
   .dots span{ width:4px; height:4px; min-width:4px; border-radius:50%; background:rgba(233,227,214,.25); transition:background .2s,transform .2s; }
   .dots span.on{ background:var(--gold); transform:scale(1.6); }
-  .zone{ position:fixed; top:0; bottom:0; width:34%; z-index:4; cursor:pointer; background:transparent; border:0; }
+  .zone{ position:fixed; top:0; bottom:0; width:34%; z-index:4; cursor:pointer; background:transparent; border:0; -webkit-tap-highlight-color:transparent; }
   .zone.prev{ left:0; }
   .zone.next{ right:0; }
   .counter{ position:fixed; top:1.1rem; right:1.3rem; z-index:5; font-family:var(--mono); font-size:.68rem; color:var(--ink-dim); font-variant-numeric:tabular-nums; }
+  @media (max-width:640px){
+    .brand{ font-size:.6rem; padding:.32rem .6rem; top:.8rem; left:.8rem; }
+    .counter{ font-size:.6rem; top:.8rem; right:.8rem; }
+    .slide h2{ font-size:clamp(1rem,5.2vw,1.5rem); }
+    .slide .num{ font-size:.6rem; }
+    .slide .cap{ bottom:calc(11vh + env(safe-area-inset-bottom)); padding:0 1rem; }
+    .zone{ width:40%; }
+  }
+  @media (max-height:420px) and (orientation:landscape){
+    .slide .cap{ bottom:calc(4vh + env(safe-area-inset-bottom)); }
+    .dots{ bottom:.6rem; }
+  }
 </style>
 
 <span class="brand"><b>Die Akademie · Bonus-Assets</b></span>
@@ -218,6 +236,14 @@
   });
   container.appendChild(frag);
   dotsWrap.appendChild(dotFrag);
+
+  container.querySelectorAll('.slide img').forEach(function(im){
+    function markOrientation(){
+      if (im.naturalHeight > im.naturalWidth) im.classList.add('is-portrait');
+    }
+    if (im.complete && im.naturalWidth) markOrientation();
+    else im.addEventListener('load', markOrientation, { once:true });
+  });
 
   var slideEls = container.querySelectorAll('.slide');
   var dots = dotsWrap.querySelectorAll('span');
